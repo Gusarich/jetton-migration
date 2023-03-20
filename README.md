@@ -39,4 +39,4 @@ Storage:
 2. Transfer desired amount of Jettons to `MigrationHelper` contract.
 3. Initiate the migration process by sending `initiate_migration` message to the `MigrationHelper` contract.
 
-Point 3 is not neccessary and can be done by simply attaching `transfer_notification` on a Jetton transfer from Point 2
+Point 3 is not necessary and can be done by simply attaching `transfer_notification` on a Jetton transfer from Point 2
