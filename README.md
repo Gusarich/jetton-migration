@@ -10,7 +10,7 @@ TL-B scheme is available in `contracts/scheme.tlb` file:
 
 ### MigrationMaster description
 
-`MigrationMaster` waits for `process_migration` message from any of `MigrationHelper` instances and transfers `amount` of Jettons to `recipient`.
+`MigrationMaster` waits for `process_migration` message from any of `MigrationHelper` instances and transfers `amount` of Jettons to `recipient` while burning `amount` of old Jettons.
 
 Storage:
 
@@ -30,13 +30,13 @@ Storage:
 ### Usage scenario: Admin
 
 1. Deploy new version of Jetton.
-2. Deploy `MigrationMaster` contract
+2. Deploy `MigrationMaster` contract.
 3. Mint **X** Jettons to the deployed `MigrationMaster` contract, where **X** is the total supply of Jettons in old minter.
 
 ### Usage scenario: User
 
-1. Deploy `MigrationHelper` contract. Storage:
-2. Transfer desired amount of Jettons to `MigrationHelper` contract
-3. Initiate the migration process by sending `initiate_migration` message to the `MigrationHelper` contract
+1. Deploy `MigrationHelper` contract.
+2. Transfer desired amount of Jettons to `MigrationHelper` contract.
+3. Initiate the migration process by sending `initiate_migration` message to the `MigrationHelper` contract.
 
 Point 3 is not neccessary and can be done by simply attaching `transfer_notification` on a Jetton transfer from Point 2
