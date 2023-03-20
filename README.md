@@ -10,33 +10,33 @@ TL-B scheme is available in `contracts/scheme.tlb` file:
 
 ### MigrationMaster description
 
-`MigrationMaster` waits for `process_migration` message from any of `MigrationHelper` instances and transfers `amount` of Jettons to `recipient` while burning `amount` of old Jettons.
+`MigrationMaster` waits for `transfer_notification` message from its **old** Jetton wallet and transfers `amount` of **new** Jettons to `recipient` while burning `amount` of **old** Jettons.
 
 Storage:
 
--   `new_jetton_wallet` - Jetton Wallet address of `MigrationMaster` contract for new version of Jetton
--   `migration_helper_code` - Cell with code of `MigrationHelper` contract
+-   `old_jetton_wallet` - Jetton Wallet address of `MigrationMaster` contract for **old** version of Jetton.
+-   `new_jetton_wallet` - Jetton Wallet address of `MigrationMaster` contract for **new** version of Jetton.
 
 ### MigrationHelper description
 
-`MigrationHelper` waits for `initiate_migration` and sends `process_migration` message to `MigrationMaster` contract with `recipient` field set to account, linked to that `MigrationHelper`
+`MigrationHelper` waits for `migrate` message from `recipient` (account linked to that `MigrationHelper`) and transfers `amount` of **old** Jettons to `MigrationMaster` contract providing the `recipient` field.
 
 Storage:
 
--   `old_jetton_wallet` - Jetton Wallet address of `MigrationMaster` contract for old version of Jetton
+-   `old_jetton_wallet` - Jetton Wallet address of `MigrationHelper` contract for **old** version of Jetton
 -   `migration_master` - Address of `MigrationMaster` contract linked to that `MigrationHelper` instance
 -   `recipient` - Address of User
 
 ### Usage scenario: Admin
 
-1. Deploy new version of Jetton.
+1. Deploy **new** version of Jetton.
 2. Deploy `MigrationMaster` contract.
-3. Mint **X** Jettons to the deployed `MigrationMaster` contract, where **X** is the total supply of Jettons in old minter.
+3. Mint **X** Jettons to the deployed `MigrationMaster` contract, where **X** is the total supply of Jettons in **old** minter.
 
 ### Usage scenario: User
 
 1. Deploy `MigrationHelper` contract.
 2. Transfer desired amount of Jettons to `MigrationHelper` contract.
-3. Initiate the migration process by sending `initiate_migration` message to the `MigrationHelper` contract.
+3. Initiate the migration process by sending `migrate` message to the `MigrationHelper` contract.
 
 Point 3 is not neccessary and can be done by simply attaching `transfer_notification` on a Jetton transfer from Point 2

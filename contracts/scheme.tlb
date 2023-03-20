@@ -1,8 +1,8 @@
 // https://github.com/ton-blockchain/ton/blob/master/crypto/block/block.tlb
 // https://github.com/ton-blockchain/TEPs/blob/master/text/0074-jettons-standard.md
 
-_ new_jetton_wallet:MsgAddressInt migration_helper_code:^Cell = MigrationMasterStorage;
+_ old_jetton_wallet:MsgAddressInt new_jetton_wallet:MsgAddressInt = MigrationMasterStorage;
 _ old_jetton_wallet:MsgAddressInt migration_master:MsgAddressInt recipient:MsgAddressInt = MigrationHelperStorage;
 
-initiate_migration#2a7da3f0 query_id:uint64 amount:(VarUInteger 16) = InternalMsgBody;
-process_migration#205e91e2 query_id:uint64 amount:(VarUInteger 16) recipient:MsgAddressInt migration_helper_data:^Cell = InternalMsgBody;
+migrate#79e4748e query_id:uint64 amount:(VarUInteger 16) = InternalMsgBody;
+_ recipient:MsgAddressInt = ForwardPayload;
