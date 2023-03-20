@@ -1,6 +1,8 @@
 # Jetton Migration
 
-## Logic
+This repository contains smart contracts necessary for the safe migration of Jettons to new versions of minters.
+
+## Description
 
 TL-B scheme is available in `contracts/scheme.tlb` file:
 
@@ -17,7 +19,7 @@ Storage:
 
 ### MigrationHelper description
 
-`MigrationHelper` waits for `initiate_migration` message from `recipient` (account linked to that `MigrationHelper`) and sends `process_migration` message to `MigrationMaster` contract
+`MigrationHelper` waits for `initiate_migration` and sends `process_migration` message to `MigrationMaster` contract with `recipient` field set to account, linked to that `MigrationHelper`
 
 Storage:
 
