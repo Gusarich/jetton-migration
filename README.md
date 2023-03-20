@@ -19,7 +19,7 @@ Storage:
 
 ### MigrationHelper description
 
-`MigrationHelper` waits for `migrate` message from `recipient` (account linked to that `MigrationHelper`) and transfers `amount` of **old** Jettons to `MigrationMaster` contract providing the `recipient` field.
+`MigrationHelper` waits for `migrate` message from `recipient` (or `transfer_notification` message from its `old_jetton_wallet`) and transfers `amount` of **old** Jettons to `MigrationMaster` contract providing the `recipient` field.
 
 Storage:
 
