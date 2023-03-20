@@ -10,22 +10,22 @@ TL-B scheme is available in `contracts/scheme.tlb` file:
 
 ### MigrationMaster description
 
-`MigrationMaster` waits for `transfer_notification` message from its **old** Jetton wallet and transfers `amount` of **new** Jettons to `recipient` while burning `amount` of **old** Jettons.
+`MigrationMaster` waits for `transfer_notification` message from its **old** Jetton wallet and transfers `amount` of **new** Jettons to `recipient` while burning `amount` of **old** Jettons. `recipient` - User's wallet address.
 
 Storage:
 
--   `old_jetton_wallet` - Jetton Wallet address of `MigrationMaster` contract for **old** version of Jetton.
--   `new_jetton_wallet` - Jetton Wallet address of `MigrationMaster` contract for **new** version of Jetton.
+-   `old_jetton_wallet` - Jetton Wallet address of `MigrationMaster` contract for **old** version of Jetton. Used to check the validity when receiving `transfer_notification` on receiving **old** Jettons.
+-   `new_jetton_wallet` - Jetton Wallet address of `MigrationMaster` contract for **new** version of Jetton. Used to transfer **new** Jettons to `recipient`.
 
 ### MigrationHelper description
 
-`MigrationHelper` waits for `migrate` message from `recipient` (or `transfer_notification` message from its `old_jetton_wallet`) and transfers `amount` of **old** Jettons to `MigrationMaster` contract providing the `recipient` field.
+`MigrationHelper` waits for `migrate` message from `recipient` (or `transfer_notification` message from its `old_jetton_wallet`) and transfers `amount` of **old** Jettons to `MigrationMaster` contract providing the `recipient` field. `recipient` - User's wallet address.
 
 Storage:
 
--   `old_jetton_wallet` - Jetton Wallet address of `MigrationHelper` contract for **old** version of Jetton
--   `migration_master` - Address of `MigrationMaster` contract linked to that `MigrationHelper` instance
--   `recipient` - Address of User
+-   `old_jetton_wallet` - Jetton Wallet address of `MigrationHelper` contract for **old** version of Jetton. Used to check the validity when receiving `transfer_notification` on receiving **old** Jettons.
+-   `migration_master` - Address of `MigrationMaster` contract linked to that `MigrationHelper` instance. Used to forward **old** Jettons from User to `MigrationMaster` contract.
+-   `recipient` - Address of User.
 
 ### Usage scenario: Admin
 
