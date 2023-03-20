@@ -1,9 +1,17 @@
 import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, Sender, SendMode } from 'ton-core';
 
-export type MigrationHelperConfig = {};
+export type MigrationHelperConfig = {
+    oldJettonWallet: Address;
+    migrationMaster: Address;
+    recipient: Address;
+};
 
 export function migrationHelperConfigToCell(config: MigrationHelperConfig): Cell {
-    return beginCell().endCell();
+    return beginCell()
+        .storeAddress(config.oldJettonWallet)
+        .storeAddress(config.migrationMaster)
+        .storeAddress(config.recipient)
+        .endCell();
 }
 
 export class MigrationHelper implements Contract {

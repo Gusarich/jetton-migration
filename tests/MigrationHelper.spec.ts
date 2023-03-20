@@ -3,6 +3,7 @@ import { Cell, toNano } from 'ton-core';
 import { MigrationHelper } from '../wrappers/MigrationHelper';
 import '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
+import { randomAddress } from '@ton-community/test-utils';
 
 describe('MigrationHelper', () => {
     let code: Cell;
@@ -17,7 +18,16 @@ describe('MigrationHelper', () => {
     beforeEach(async () => {
         blockchain = await Blockchain.create();
 
-        migrationHelper = blockchain.openContract(MigrationHelper.createFromConfig({}, code));
+        migrationHelper = blockchain.openContract(
+            MigrationHelper.createFromConfig(
+                {
+                    oldJettonWallet: randomAddress(),
+                    migrationMaster: randomAddress(),
+                    recipient: randomAddress(),
+                },
+                code
+            )
+        );
 
         const deployer = await blockchain.treasury('deployer');
 
