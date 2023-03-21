@@ -1,12 +1,70 @@
 #include "imports/stdlib.fc";
+#include "opcodes.fc";
 
+const int ton_for_fee = 100000000;
+global slice old_jetton_wallet;
 global slice new_jetton_wallet;
 
 () load_data() impure inline {
     slice ds = get_data().begin_parse();
+    old_jetton_wallet = ds~load_msg_addr();
     new_jetton_wallet = ds~load_msg_addr();
+}
+
+() transfer(int amount, int query_id, slice recipient) impure {
+    send_raw_message(begin_cell()
+        .store_uint(0x18, 6)
+        .store_slice(new_jetton_wallet)
+        .store_coins(ton_for_fee)
+        .store_uint(1, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+        .store_ref(begin_cell()
+            .store_uint(op::transfer, 32)
+            .store_uint(query_id, 64)
+            .store_coins(amount)
+            .store_slice(recipient)
+            .store_slice(my_address())
+            .store_uint(0, 6)
+        .end_cell())
+    .end_cell(), 1);
+}
+
+() burn(int amount, int query_id) impure {
+    send_raw_message(begin_cell()
+        .store_uint(0x18, 6)
+        .store_slice(old_jetton_wallet)
+        .store_coins(ton_for_fee)
+        .store_uint(1, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+        .store_ref(begin_cell()
+            .store_uint(op::burn, 32)
+            .store_uint(query_id, 64)
+            .store_coins(amount)
+            .store_slice(my_address())
+            .store_uint(0, 1)
+        .end_cell())
+    .end_cell(), 1);
 }
 
 () recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
     load_data();
+    slice cs = in_msg_full.begin_parse();
+
+    int flags = cs~load_uint(4);
+    slice sender = cs~load_msg_addr();
+    int op = in_msg_body~load_uint(32);
+    if ((flags & 1) | (~ equal_slices(sender, old_jetton_wallet)) | (op != op::transfer_notification)) {
+        return (); ;; ignore bounced messages / messages not from old_jetton_wallet / not transfer notifications
+    }
+
+    int query_id = in_msg_body~load_uint(64);
+    int amount = in_msg_body~load_coins();
+    in_msg_body~load_msg_addr();
+    slice recipient = "";
+    if (in_msg_body~load_uint(1) == 0) {
+        recipient = in_msg_body;
+    } else {
+        recipient = in_msg_body.preload_ref().begin_parse();
+    }
+
+    transfer(amount, query_id, recipient);
+    burn(amount, query_id);
 }

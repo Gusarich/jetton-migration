@@ -1,0 +1,4 @@
+const int op::transfer_notification = 0x7362d09c;
+const int op::transfer = 0x0f8a7ea5;
+const int op::burn = 0x595f07bc;
+const int op::migrate = 0x79e4748e;
