@@ -1,10 +1,9 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton-community/sandbox';
-import { Address, Cell, toNano } from 'ton-core';
+import { Cell, toNano } from 'ton-core';
 import { MigrationMaster, MigrationMasterConfig } from '../wrappers/MigrationMaster';
 import { MigrationHelper, MigrationHelperConfig } from '../wrappers/MigrationHelper';
 import '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
-import { randomAddress } from '@ton-community/test-utils';
 import { JettonMinter, JettonMinterConfig } from '../wrappers/JettonMinter';
 import { JettonMinterDiscoverable, JettonMinterDiscoverableConfig } from '../wrappers/JettonMinterDiscoverable';
 import { JettonWallet, JettonWalletConfig } from '../wrappers/JettonWallet';
@@ -28,6 +27,7 @@ describe('Migration', () => {
     let blockchain: Blockchain;
     let oldJettonMinter: SandboxContract<JettonMinter>;
     let newJettonMinter: SandboxContract<JettonMinterDiscoverable>;
+    let migrationMaster: SandboxContract<MigrationMaster>;
 
     beforeEach(async () => {
         blockchain = await Blockchain.create();
@@ -45,6 +45,12 @@ describe('Migration', () => {
         oldJettonMinter = blockchain.openContract(
             JettonMinter.createFromConfig(oldJettonMinterConfig, jettonMinterCode)
         );
+        let deployResult = await oldJettonMinter.sendDeploy(wallets[0].getSender(), toNano('0.1'));
+        expect(deployResult.transactions).toHaveTransaction({
+            from: wallets[0].address,
+            to: oldJettonMinter.address,
+            deploy: true,
+        });
 
         let newJettonMinterConfig: JettonMinterDiscoverableConfig = {
             admin: wallets[0].address,
@@ -54,21 +60,28 @@ describe('Migration', () => {
         newJettonMinter = blockchain.openContract(
             JettonMinterDiscoverable.createFromConfig(newJettonMinterConfig, jettonMinterDiscoverableCode)
         );
-
-        let deployResult = await oldJettonMinter.sendDeploy(wallets[0].getSender(), toNano('0.1'));
-        expect(deployResult.transactions).toHaveTransaction({
-            from: wallets[0].address,
-            to: oldJettonMinter.address,
-            deploy: true,
-        });
-
         deployResult = await newJettonMinter.sendDeploy(wallets[0].getSender(), toNano('0.1'));
         expect(deployResult.transactions).toHaveTransaction({
             from: wallets[0].address,
             to: newJettonMinter.address,
             deploy: true,
         });
+
+        let migrationMasterConfig: MigrationMasterConfig = {
+            oldJettonWallet: oldJettonMinter.address,
+            newJettonWallet: newJettonMinter.address,
+        };
+        migrationMaster = blockchain.openContract(MigrationMaster.createFromConfig(migrationMasterConfig, masterCode));
+        deployResult = await migrationMaster.sendDeploy(wallets[0].getSender(), toNano('0.1'));
+        expect(deployResult.transactions).toHaveTransaction({
+            from: wallets[0].address,
+            to: migrationMaster.address,
+            deploy: true,
+            success: true,
+        });
+
+        console.log(deployResult.transactions);
     });
 
-    it('should deploy', async () => {});
+    it('should deploy MigrationMaster contract', async () => {});
 });
