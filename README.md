@@ -14,8 +14,8 @@ TL-B scheme is available in `contracts/scheme.tlb` file:
 
 Storage:
 
--   `old_jetton_wallet` - Jetton Wallet address of `MigrationMaster` contract for **old** version of Jetton. Used to check the validity when receiving `transfer_notification` on receiving **old** Jettons.
--   `new_jetton_wallet` - Jetton Wallet address of `MigrationMaster` contract for **new** version of Jetton. Used to transfer **new** Jettons to `recipient`.
+-   `old_jetton_minter` - old Jetton Minter address. Used to check the validity when receiving `transfer_notification` on receiving **old** Jettons.
+-   `new_jetton_minter` - new Jetton Minter address. Used to transfer **new** Jettons to `recipient`.
 
 ### MigrationHelper description
 
@@ -23,7 +23,7 @@ Storage:
 
 Storage:
 
--   `old_jetton_wallet` - Jetton Wallet address of `MigrationHelper` contract for **old** version of Jetton. Used to check the validity when receiving `transfer_notification` on receiving **old** Jettons.
+-   `old_jetton_minter` - old Jetton Minter address. Used to check the validity when receiving `transfer_notification` on receiving **old** Jettons.
 -   `migration_master` - Address of `MigrationMaster` contract linked to that `MigrationHelper` instance. Used to forward **old** Jettons from User to `MigrationMaster` contract.
 -   `recipient` - Address of User.
 
@@ -31,7 +31,7 @@ Storage:
 
 1. Deploy **new** version of Jetton.
 2. Deploy `MigrationMaster` contract.
-3. Mint **X** Jettons to the deployed `MigrationMaster` contract, where **X** is the total supply of Jettons in **old** minter.
+3. Mint **X** Jettons from new minter to the deployed `MigrationMaster` contract, where **X** is the total supply of Jettons in **old** minter.
 
 ### Usage scenario: User
 

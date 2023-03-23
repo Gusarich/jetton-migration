@@ -1,5 +1,7 @@
 #include "imports/stdlib.fc";
 #include "opcodes.fc";
+#include "params.fc";
+#include "jetton-utils.fc";
 
 const int ton_for_fee = 100000000;
 global slice old_jetton_wallet;
@@ -7,8 +9,11 @@ global slice new_jetton_wallet;
 
 () load_data() impure inline {
     slice ds = get_data().begin_parse();
-    old_jetton_wallet = ds~load_msg_addr();
-    new_jetton_wallet = ds~load_msg_addr();
+    slice old_jetton_minter = ds~load_msg_addr();
+    slice new_jetton_minter = ds~load_msg_addr();
+    cell wallet_code = ds~load_ref();
+    old_jetton_wallet = calculate_user_jetton_wallet_address(my_address(), old_jetton_minter, wallet_code);
+    new_jetton_wallet = calculate_user_jetton_wallet_address(my_address(), new_jetton_minter, wallet_code);
 }
 
 () transfer(int amount, int query_id, slice recipient) impure {
