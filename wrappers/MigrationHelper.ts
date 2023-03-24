@@ -36,4 +36,12 @@ export class MigrationHelper implements Contract {
             body: beginCell().endCell(),
         });
     }
+
+    async sendMigrate(provider: ContractProvider, via: Sender, value: bigint, amount: bigint) {
+        await provider.internal(via, {
+            value,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: beginCell().storeUint(0x79e4748e, 32).storeUint(0, 64).storeCoins(amount).endCell(),
+        });
+    }
 }
