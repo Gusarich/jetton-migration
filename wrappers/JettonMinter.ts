@@ -36,14 +36,21 @@ export class JettonMinter implements Contract {
         });
     }
 
-    async sendMint(provider: ContractProvider, via: Sender, value: bigint, recipient: Address, amount: bigint) {
+    async sendMint(
+        provider: ContractProvider,
+        via: Sender,
+        value: bigint,
+        forwardValue: bigint,
+        recipient: Address,
+        amount: bigint
+    ) {
         await provider.internal(via, {
             sendMode: SendMode.PAY_GAS_SEPARATELY,
             body: beginCell()
-                .storeUint(0x1674b0a0, 32)
+                .storeUint(21, 32)
                 .storeUint(0, 64)
                 .storeAddress(recipient)
-                .storeCoins(amount)
+                .storeCoins(forwardValue)
                 .storeRef(
                     beginCell()
                         .storeUint(0x178d4519, 32)
@@ -56,7 +63,7 @@ export class JettonMinter implements Contract {
                         .endCell()
                 )
                 .endCell(),
-            value: value,
+            value: value + forwardValue,
         });
     }
 }

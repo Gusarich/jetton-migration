@@ -1,4 +1,5 @@
 import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, Sender, SendMode } from 'ton-core';
+import { JettonMinter } from './JettonMinter';
 
 export type JettonMinterDiscoverableConfig = {
     admin: Address;
@@ -15,9 +16,7 @@ export function jettonMinterDiscoverableConfigToCell(config: JettonMinterDiscove
         .endCell();
 }
 
-export class JettonMinterDiscoverable implements Contract {
-    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
-
+export class JettonMinterDiscoverable extends JettonMinter implements Contract {
     static createFromAddress(address: Address) {
         return new JettonMinterDiscoverable(address);
     }
@@ -26,37 +25,5 @@ export class JettonMinterDiscoverable implements Contract {
         const data = jettonMinterDiscoverableConfigToCell(config);
         const init = { code, data };
         return new JettonMinterDiscoverable(contractAddress(workchain, init), init);
-    }
-
-    async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
-        await provider.internal(via, {
-            value,
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-            body: beginCell().endCell(),
-        });
-    }
-
-    async sendMint(provider: ContractProvider, via: Sender, value: bigint, recipient: Address, amount: bigint) {
-        await provider.internal(via, {
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-            body: beginCell()
-                .storeUint(0x1674b0a0, 32)
-                .storeUint(0, 64)
-                .storeAddress(recipient)
-                .storeCoins(amount)
-                .storeRef(
-                    beginCell()
-                        .storeUint(0x178d4519, 32)
-                        .storeUint(0, 64)
-                        .storeCoins(amount)
-                        .storeAddress(this.address)
-                        .storeAddress(this.address)
-                        .storeCoins(0)
-                        .storeUint(0, 1)
-                        .endCell()
-                )
-                .endCell(),
-            value: value,
-        });
     }
 }

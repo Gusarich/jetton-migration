@@ -12,7 +12,7 @@ global slice recipient;
     send_raw_message(begin_cell()
         .store_uint(0x18, 6)
         .store_slice(old_jetton_wallet)
-        .store_coins(ton_for_fee)
+        .store_coins(ton_for_fee * 3)
         .store_uint(1, 1 + 4 + 4 + 64 + 32 + 1 + 1)
         .store_ref(begin_cell()
             .store_uint(op::transfer, 32)
@@ -20,7 +20,10 @@ global slice recipient;
             .store_coins(amount)
             .store_slice(migration_master)
             .store_slice(my_address())
-            .store_uint(0, 6)
+            .store_uint(0, 1)
+            .store_coins(ton_for_fee * 2)
+            .store_uint(0, 1)
+            .store_slice(recipient)
         .end_cell())
     .end_cell(), 1);
 }

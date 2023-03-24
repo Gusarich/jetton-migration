@@ -27,8 +27,10 @@ global slice new_jetton_wallet;
             .store_uint(query_id, 64)
             .store_coins(amount)
             .store_slice(recipient)
-            .store_slice(my_address())
-            .store_uint(0, 6)
+            .store_slice(recipient)
+            .store_uint(0, 1)
+            .store_coins(0)
+            .store_uint(0, 1)
         .end_cell())
     .end_cell(), 1);
 }
@@ -60,6 +62,7 @@ global slice new_jetton_wallet;
     int flags = cs~load_uint(4);
     slice sender = cs~load_msg_addr();
     int op = in_msg_body~load_uint(32);
+    ~dump([22222222, op]);
     if ((flags & 1) | (~ equal_slices(sender, old_jetton_wallet)) | (op != op::transfer_notification)) {
         return (); ;; ignore bounced messages / messages not from old_jetton_wallet / not transfer notifications
     }
@@ -68,12 +71,15 @@ global slice new_jetton_wallet;
     int amount = in_msg_body~load_coins();
     in_msg_body~load_msg_addr();
     slice recipient = "";
+    ~dump(in_msg_body);
     if (in_msg_body~load_uint(1) == 0) {
         recipient = in_msg_body;
     } else {
         recipient = in_msg_body.preload_ref().begin_parse();
     }
 
+    ~dump([amount, recipient]);
+
     transfer(amount, query_id, recipient);
-    burn(amount, query_id);
+    ;;burn(amount, query_id);
 }
