@@ -8,10 +8,6 @@ import { JettonMinter, JettonMinterConfig } from '../wrappers/JettonMinter';
 import { JettonMinterDiscoverable, JettonMinterDiscoverableConfig } from '../wrappers/JettonMinterDiscoverable';
 import { JettonWallet, JettonWalletConfig } from '../wrappers/JettonWallet';
 
-function getJettonWalletAddress(owner: Address, minter: Address, code: Cell) {
-    return JettonWallet.createFromConfig({ owner, minter, walletCode: code }, code, 0).address;
-}
-
 describe('Migration', () => {
     let masterCode: Cell;
     let helperCode: Cell;
@@ -107,14 +103,10 @@ describe('Migration', () => {
             toNano('100')
         );
         let oldJettonWallet = blockchain.openContract(
-            JettonWallet.createFromAddress(
-                getJettonWalletAddress(wallets[1].address, oldJettonMinter.address, jettonWalletCode)
-            )
+            JettonWallet.createFromAddress(await oldJettonMinter.getWalletAddressOf(wallets[1].address))
         );
         let newJettonWallet = blockchain.openContract(
-            JettonWallet.createFromAddress(
-                getJettonWalletAddress(wallets[1].address, newJettonMinter.address, jettonWalletCode)
-            )
+            JettonWallet.createFromAddress(await newJettonMinter.getWalletAddressOf(wallets[1].address))
         );
 
         await newJettonMinter.sendMint(
@@ -171,14 +163,10 @@ describe('Migration', () => {
             toNano('100')
         );
         let oldJettonWallet = blockchain.openContract(
-            JettonWallet.createFromAddress(
-                getJettonWalletAddress(wallets[1].address, oldJettonMinter.address, jettonWalletCode)
-            )
+            JettonWallet.createFromAddress(await oldJettonMinter.getWalletAddressOf(wallets[1].address))
         );
         let newJettonWallet = blockchain.openContract(
-            JettonWallet.createFromAddress(
-                getJettonWalletAddress(wallets[1].address, newJettonMinter.address, jettonWalletCode)
-            )
+            JettonWallet.createFromAddress(await newJettonMinter.getWalletAddressOf(wallets[1].address))
         );
 
         await newJettonMinter.sendMint(
@@ -246,24 +234,16 @@ describe('Migration', () => {
             toNano('100')
         );
         let oldJettonWallet1 = blockchain.openContract(
-            JettonWallet.createFromAddress(
-                getJettonWalletAddress(wallets[1].address, oldJettonMinter.address, jettonWalletCode)
-            )
+            JettonWallet.createFromAddress(await oldJettonMinter.getWalletAddressOf(wallets[1].address))
         );
         let newJettonWallet1 = blockchain.openContract(
-            JettonWallet.createFromAddress(
-                getJettonWalletAddress(wallets[1].address, newJettonMinter.address, jettonWalletCode)
-            )
+            JettonWallet.createFromAddress(await newJettonMinter.getWalletAddressOf(wallets[1].address))
         );
         let oldJettonWallet2 = blockchain.openContract(
-            JettonWallet.createFromAddress(
-                getJettonWalletAddress(wallets[2].address, oldJettonMinter.address, jettonWalletCode)
-            )
+            JettonWallet.createFromAddress(await oldJettonMinter.getWalletAddressOf(wallets[2].address))
         );
         let newJettonWallet2 = blockchain.openContract(
-            JettonWallet.createFromAddress(
-                getJettonWalletAddress(wallets[2].address, newJettonMinter.address, jettonWalletCode)
-            )
+            JettonWallet.createFromAddress(await newJettonMinter.getWalletAddressOf(wallets[2].address))
         );
 
         await newJettonMinter.sendMint(

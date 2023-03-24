@@ -66,4 +66,12 @@ export class JettonMinter implements Contract {
             value: value + forwardValue,
         });
     }
+
+    async getWalletAddressOf(provider: ContractProvider, address: Address) {
+        return (
+            await provider.get('get_wallet_address', [
+                { type: 'slice', cell: beginCell().storeAddress(address).endCell() },
+            ])
+        ).stack.readAddress();
+    }
 }
