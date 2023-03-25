@@ -214,21 +214,21 @@ describe('Migration', () => {
     it('should migrate jettons several times', async () => {
         await oldJettonMinter.sendMint(
             wallets[0].getSender(),
-            toNano('1.00'),
+            toNano('100.00'),
             toNano('1.00'),
             wallets[1].address,
             toNano('30')
         );
         await oldJettonMinter.sendMint(
             wallets[0].getSender(),
-            toNano('1.00'),
+            toNano('100.00'),
             toNano('1.00'),
             wallets[2].address,
             toNano('70')
         );
         await newJettonMinter.sendMint(
             wallets[0].getSender(),
-            toNano('1.00'),
+            toNano('100.00'),
             toNano('1.00'),
             migrationMaster.address,
             toNano('100')
@@ -248,7 +248,7 @@ describe('Migration', () => {
 
         await newJettonMinter.sendMint(
             wallets[0].getSender(),
-            toNano('1.00'),
+            toNano('100.00'),
             toNano('1.00'),
             migrationMaster.address,
             toNano('100')
@@ -293,7 +293,7 @@ describe('Migration', () => {
 
         result = await oldJettonWallet1.sendTransfer(
             wallets[1].getSender(),
-            toNano('1.00'),
+            toNano('100.00'),
             toNano('1.00'),
             migrationHelper1.address,
             toNano('30')
@@ -303,7 +303,7 @@ describe('Migration', () => {
 
         result = await oldJettonWallet2.sendTransfer(
             wallets[2].getSender(),
-            toNano('1.00'),
+            toNano('100.00'),
             toNano('1.00'),
             migrationHelper2.address,
             toNano('50')
@@ -313,7 +313,7 @@ describe('Migration', () => {
 
         result = await oldJettonWallet2.sendTransfer(
             wallets[2].getSender(),
-            toNano('1.00'),
+            toNano('100.00'),
             toNano('1.00'),
             migrationHelper2.address,
             toNano('20')

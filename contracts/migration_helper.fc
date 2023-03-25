@@ -19,7 +19,7 @@ global slice recipient;
             .store_uint(query_id, 64)
             .store_coins(amount)
             .store_slice(migration_master)
-            .store_slice(my_address())
+            .store_slice(recipient)
             .store_uint(0, 1)
             .store_coins(ton_for_fee * 2)
             .store_uint(0, 1)
@@ -40,8 +40,8 @@ global slice recipient;
 () recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
     ~dump(in_msg_body);
 
-    if (in_msg_body.slice_bits() == 0) {
-        return (); ;; ignore empty messages
+    if ((in_msg_body.slice_bits() == 0) | (my_balance < ton_for_fee * 4)) {
+        return (); ;; ignore empty messages / not enough coins
     }
 
     load_data();
@@ -78,4 +78,10 @@ global slice recipient;
     ~dump(amount);
 
     transfer(amount, query_id);
+    send_raw_message(begin_cell()
+        .store_uint(0x18, 6)
+        .store_slice(recipient)
+        .store_coins(my_balance - ton_for_fee * 4)
+        .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+    .end_cell(), 0);
 }

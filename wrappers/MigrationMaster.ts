@@ -34,4 +34,8 @@ export class MigrationMaster implements Contract {
             body: beginCell().endCell(),
         });
     }
+
+    async getBalance(provider: ContractProvider) {
+        return (await provider.getState()).balance;
+    }
 }

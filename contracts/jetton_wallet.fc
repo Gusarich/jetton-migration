@@ -116,6 +116,7 @@ int gas_consumption() asm "15000000 PUSHINT"; ;; 0.015 TON
   (int balance, slice owner_address, slice jetton_master_address, cell jetton_wallet_code) = load_data();
   int query_id = in_msg_body~load_uint(64);
   int jetton_amount = in_msg_body~load_coins();
+  ~dump(jetton_amount);
   balance += jetton_amount;
   slice from_address = in_msg_body~load_msg_addr();
   slice response_address = in_msg_body~load_msg_addr();
@@ -128,8 +129,11 @@ int gas_consumption() asm "15000000 PUSHINT"; ;; 0.015 TON
   ~dump(forward_ton_amount);
 
   int ton_balance_before_msg = my_ton_balance - msg_value;
+  ~dump(1);
   int storage_fee = min_tons_for_storage() - min(ton_balance_before_msg, min_tons_for_storage());
+  ~dump(1);
   msg_value -= (storage_fee + gas_consumption());
+  ~dump(1);
   if(forward_ton_amount) {
     msg_value -= (forward_ton_amount + fwd_fee);
     slice either_forward_payload = in_msg_body;
@@ -151,6 +155,7 @@ int gas_consumption() asm "15000000 PUSHINT"; ;; 0.015 TON
     ~dump(123);
     send_raw_message(msg.end_cell(), 1);
   }
+  ~dump(1);
 
   if ((response_address.preload_uint(2) != 0) & (msg_value > 0)) {
     var msg = begin_cell()
@@ -162,6 +167,7 @@ int gas_consumption() asm "15000000 PUSHINT"; ;; 0.015 TON
       .store_uint(query_id, 64);
     send_raw_message(msg.end_cell(), 2);
   }
+  ~dump(1);
 
   save_data(balance, owner_address, jetton_master_address, jetton_wallet_code);
 }

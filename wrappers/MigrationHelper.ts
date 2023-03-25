@@ -44,4 +44,8 @@ export class MigrationHelper implements Contract {
             body: beginCell().storeUint(0x79e4748e, 32).storeUint(0, 64).storeCoins(amount).endCell(),
         });
     }
+
+    async getBalance(provider: ContractProvider) {
+        return (await provider.getState()).balance;
+    }
 }
