@@ -12,7 +12,7 @@ global slice recipient;
     send_raw_message(begin_cell()
         .store_uint(0x18, 6)
         .store_slice(old_jetton_wallet)
-        .store_coins(ton_for_fee * 3)
+        .store_coins(ton_for_fee * 5)
         .store_uint(1, 1 + 4 + 4 + 64 + 32 + 1 + 1)
         .store_ref(begin_cell()
             .store_uint(op::transfer, 32)
@@ -21,7 +21,7 @@ global slice recipient;
             .store_slice(migration_master)
             .store_slice(recipient)
             .store_uint(0, 1)
-            .store_coins(ton_for_fee * 2)
+            .store_coins(ton_for_fee * 4)
             .store_uint(0, 1)
             .store_slice(recipient)
         .end_cell())
@@ -41,7 +41,7 @@ global slice recipient;
     if ((in_msg_body.slice_bits() == 0)) {
         return (); ;; ignore empty messages / not enough coins
     }
-    throw_if(505, msg_value < ton_for_fee * 4);
+    throw_if(505, msg_value < ton_for_fee * 6);
 
     load_data();
     slice cs = in_msg_full.begin_parse();
@@ -75,7 +75,7 @@ global slice recipient;
     send_raw_message(begin_cell()
         .store_uint(0x18, 6)
         .store_slice(recipient)
-        .store_coins(my_balance - ton_for_fee * 4)
+        .store_coins(my_balance - ton_for_fee * 6)
         .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
     .end_cell(), 0);
 }

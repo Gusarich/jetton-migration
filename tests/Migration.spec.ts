@@ -46,7 +46,7 @@ describe('Migration', () => {
         oldJettonMinter = blockchain.openContract(
             JettonMinter.createFromConfig(oldJettonMinterConfig, jettonMinterCode)
         );
-        let deployResult = await oldJettonMinter.sendDeploy(wallets[0].getSender(), toNano('0.2'));
+        let deployResult = await oldJettonMinter.sendDeploy(wallets[0].getSender(), toNano('0.3'));
         expect(deployResult.transactions).toHaveTransaction({
             from: wallets[0].address,
             to: oldJettonMinter.address,
@@ -62,7 +62,7 @@ describe('Migration', () => {
         newJettonMinter = blockchain.openContract(
             JettonMinterDiscoverable.createFromConfig(newJettonMinterConfig, jettonMinterDiscoverableCode)
         );
-        deployResult = await newJettonMinter.sendDeploy(wallets[0].getSender(), toNano('0.2'));
+        deployResult = await newJettonMinter.sendDeploy(wallets[0].getSender(), toNano('0.3'));
         expect(deployResult.transactions).toHaveTransaction({
             from: wallets[0].address,
             to: newJettonMinter.address,
@@ -76,7 +76,7 @@ describe('Migration', () => {
             walletCode: jettonWalletCode,
         };
         migrationMaster = blockchain.openContract(MigrationMaster.createFromConfig(migrationMasterConfig, masterCode));
-        deployResult = await migrationMaster.sendDeploy(wallets[0].getSender(), toNano('0.2'));
+        deployResult = await migrationMaster.sendDeploy(wallets[0].getSender(), toNano('0.3'));
         expect(deployResult.transactions).toHaveTransaction({
             from: wallets[0].address,
             to: migrationMaster.address,
@@ -90,14 +90,14 @@ describe('Migration', () => {
     it('should migrate jettons through `transfer_notification`', async () => {
         let rs = await oldJettonMinter.sendMint(
             wallets[0].getSender(),
-            toNano('0.2'),
+            toNano('0.3'),
             toNano('0.05'),
             wallets[1].address,
             toNano('100')
         );
         await newJettonMinter.sendMint(
             wallets[0].getSender(),
-            toNano('0.2'),
+            toNano('0.3'),
             toNano('0.05'),
             migrationMaster.address,
             toNano('100')
@@ -118,7 +118,7 @@ describe('Migration', () => {
         let migrationHelper = blockchain.openContract(
             MigrationHelper.createFromConfig(migrationHelperConfig, helperCode)
         );
-        let result = await migrationHelper.sendDeploy(wallets[1].getSender(), toNano('0.2'));
+        let result = await migrationHelper.sendDeploy(wallets[1].getSender(), toNano('0.3'));
         expect(result.transactions).toHaveTransaction({
             from: wallets[1].address,
             to: migrationHelper.address,
@@ -131,7 +131,7 @@ describe('Migration', () => {
         result = await oldJettonWallet.sendTransfer(
             wallets[1].getSender(),
             toNano('0.05'),
-            toNano('0.2'),
+            toNano('0.3'),
             migrationHelper.address,
             toNano('100')
         );
@@ -142,14 +142,14 @@ describe('Migration', () => {
     it('should migrate jettons through `migrate`', async () => {
         await oldJettonMinter.sendMint(
             wallets[0].getSender(),
-            toNano('0.2'),
+            toNano('0.3'),
             toNano('0.05'),
             wallets[1].address,
             toNano('100')
         );
         await newJettonMinter.sendMint(
             wallets[0].getSender(),
-            toNano('0.2'),
+            toNano('0.3'),
             toNano('0.05'),
             migrationMaster.address,
             toNano('100')
@@ -170,7 +170,7 @@ describe('Migration', () => {
         let migrationHelper = blockchain.openContract(
             MigrationHelper.createFromConfig(migrationHelperConfig, helperCode)
         );
-        let result = await migrationHelper.sendDeploy(wallets[1].getSender(), toNano('0.2'));
+        let result = await migrationHelper.sendDeploy(wallets[1].getSender(), toNano('0.3'));
         expect(result.transactions).toHaveTransaction({
             from: wallets[1].address,
             to: migrationHelper.address,
@@ -190,7 +190,7 @@ describe('Migration', () => {
 
         expect(await newJettonWallet.getJettonBalance()).toEqual(toNano('0'));
 
-        result = await migrationHelper.sendMigrate(wallets[1].getSender(), toNano('0.2'), toNano('100'));
+        result = await migrationHelper.sendMigrate(wallets[1].getSender(), toNano('0.3'), toNano('100'));
 
         expect(await newJettonWallet.getJettonBalance()).toEqual(toNano('100'));
     });
@@ -198,21 +198,21 @@ describe('Migration', () => {
     it('should migrate jettons several times', async () => {
         await oldJettonMinter.sendMint(
             wallets[0].getSender(),
-            toNano('0.2'),
+            toNano('0.3'),
             toNano('0.05'),
             wallets[1].address,
             toNano('30')
         );
         await oldJettonMinter.sendMint(
             wallets[0].getSender(),
-            toNano('0.2'),
+            toNano('0.3'),
             toNano('0.05'),
             wallets[2].address,
             toNano('70')
         );
         await newJettonMinter.sendMint(
             wallets[0].getSender(),
-            toNano('0.2'),
+            toNano('0.3'),
             toNano('0.05'),
             migrationMaster.address,
             toNano('100')
@@ -239,7 +239,7 @@ describe('Migration', () => {
         let migrationHelper1 = blockchain.openContract(
             MigrationHelper.createFromConfig(migrationHelper1Config, helperCode)
         );
-        let result = await migrationHelper1.sendDeploy(wallets[1].getSender(), toNano('0.2'));
+        let result = await migrationHelper1.sendDeploy(wallets[1].getSender(), toNano('0.3'));
         expect(result.transactions).toHaveTransaction({
             from: wallets[1].address,
             to: migrationHelper1.address,
@@ -256,7 +256,7 @@ describe('Migration', () => {
         let migrationHelper2 = blockchain.openContract(
             MigrationHelper.createFromConfig(migrationHelper2Config, helperCode)
         );
-        result = await migrationHelper2.sendDeploy(wallets[2].getSender(), toNano('0.2'));
+        result = await migrationHelper2.sendDeploy(wallets[2].getSender(), toNano('0.3'));
         expect(result.transactions).toHaveTransaction({
             from: wallets[2].address,
             to: migrationHelper2.address,
@@ -270,7 +270,7 @@ describe('Migration', () => {
         result = await oldJettonWallet1.sendTransfer(
             wallets[1].getSender(),
             toNano('0.05'),
-            toNano('0.2'),
+            toNano('0.3'),
             migrationHelper1.address,
             toNano('30')
         );
@@ -280,7 +280,7 @@ describe('Migration', () => {
         result = await oldJettonWallet2.sendTransfer(
             wallets[2].getSender(),
             toNano('0.05'),
-            toNano('0.2'),
+            toNano('0.3'),
             migrationHelper2.address,
             toNano('50')
         );
@@ -290,7 +290,7 @@ describe('Migration', () => {
         result = await oldJettonWallet2.sendTransfer(
             wallets[2].getSender(),
             toNano('0.05'),
-            toNano('0.2'),
+            toNano('0.3'),
             migrationHelper2.address,
             toNano('20')
         );
@@ -301,14 +301,14 @@ describe('Migration', () => {
     it('should not gain ton balance', async () => {
         await oldJettonMinter.sendMint(
             wallets[0].getSender(),
-            toNano('0.2'),
+            toNano('0.3'),
             toNano('0.05'),
             wallets[1].address,
             toNano('100')
         );
         await newJettonMinter.sendMint(
             wallets[0].getSender(),
-            toNano('0.2'),
+            toNano('0.3'),
             toNano('0.05'),
             migrationMaster.address,
             toNano('100')
@@ -329,7 +329,7 @@ describe('Migration', () => {
         let migrationHelper = blockchain.openContract(
             MigrationHelper.createFromConfig(migrationHelperConfig, helperCode)
         );
-        let result = await migrationHelper.sendDeploy(wallets[1].getSender(), toNano('0.2'));
+        let result = await migrationHelper.sendDeploy(wallets[1].getSender(), toNano('0.3'));
         expect(result.transactions).toHaveTransaction({
             from: wallets[1].address,
             to: migrationHelper.address,

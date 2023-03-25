@@ -5,17 +5,17 @@ import { JettonWallet } from '../wrappers/JettonWallet';
 
 export async function run(provider: NetworkProvider) {
     const migrationHelper = provider.open(
-        MigrationHelper.createFromAddress(Address.parse('EQCl9BHggN1bT3ql-OItOfBhVe0JHV6u8DLlgIWw05tPVFEM'))
+        MigrationHelper.createFromAddress(Address.parse('EQAD0NkLKy6-_pOlq-OkhHg0fwMSXh4afAZ0znu69kwcT9wJ'))
     );
     const oldJettonWallet = provider.open(
-        JettonWallet.createFromAddress(Address.parse('EQDxk5SdWPXIkxlSYvR2Fru2bk2TN1QaxD2ugxS1cTFmMQz3'))
+        JettonWallet.createFromAddress(Address.parse('EQAaEVqtVYVzYoAgSiWxQll4P-vTOFD8i998PfYVZ4RFI1sp'))
     );
     await oldJettonWallet.sendTransfer(
         provider.sender(),
-        toNano('0.1'),
-        toNano('0.4'),
+        toNano('0.05'),
+        toNano('0.3'),
         migrationHelper.address,
-        toNano('400')
+        toNano('3500')
     );
-    // await migrationHelper.sendMigrate(provider.sender(), toNano('0.5'), toNano('100'));
+    // await migrationHelper.sendMigrate(provider.sender(), toNano('0.35'), toNano('500'));
 }
