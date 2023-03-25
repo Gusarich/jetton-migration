@@ -321,4 +321,93 @@ describe('Migration', () => {
 
         expect(await newJettonWallet2.getJettonBalance()).toEqual(toNano('70'));
     });
+
+    it('should not gain ton balance', async () => {
+        await oldJettonMinter.sendMint(
+            wallets[0].getSender(),
+            toNano('1.00'),
+            toNano('1.00'),
+            wallets[1].address,
+            toNano('100')
+        );
+        await newJettonMinter.sendMint(
+            wallets[0].getSender(),
+            toNano('1.00'),
+            toNano('1.00'),
+            migrationMaster.address,
+            toNano('100')
+        );
+        let oldJettonWallet = blockchain.openContract(
+            JettonWallet.createFromAddress(await oldJettonMinter.getWalletAddressOf(wallets[1].address))
+        );
+        let newJettonWallet = blockchain.openContract(
+            JettonWallet.createFromAddress(await newJettonMinter.getWalletAddressOf(wallets[1].address))
+        );
+
+        await newJettonMinter.sendMint(
+            wallets[0].getSender(),
+            toNano('1.00'),
+            toNano('1.00'),
+            migrationMaster.address,
+            toNano('100')
+        );
+
+        let migrationHelperConfig: MigrationHelperConfig = {
+            oldJettonMinter: oldJettonMinter.address,
+            migrationMaster: migrationMaster.address,
+            recipient: wallets[1].address,
+            walletCode: jettonWalletCode,
+        };
+        let migrationHelper = blockchain.openContract(
+            MigrationHelper.createFromConfig(migrationHelperConfig, helperCode)
+        );
+        let result = await migrationHelper.sendDeploy(wallets[1].getSender(), toNano('1.00'));
+        expect(result.transactions).toHaveTransaction({
+            from: wallets[1].address,
+            to: migrationHelper.address,
+            deploy: true,
+            success: true,
+        });
+
+        await oldJettonWallet.sendTransfer(
+            wallets[1].getSender(),
+            toNano('5.00'),
+            toNano('1.00'),
+            migrationHelper.address,
+            toNano('10')
+        );
+
+        const migrationHelperBalanceBefore = await migrationHelper.getBalance();
+        const migrationMasterBalanceBefore = await migrationMaster.getBalance();
+
+        await oldJettonWallet.sendTransfer(
+            wallets[1].getSender(),
+            toNano('1.00'),
+            toNano('1.00'),
+            migrationHelper.address,
+            toNano('5')
+        );
+
+        await oldJettonWallet.sendTransfer(
+            wallets[1].getSender(),
+            toNano('100.00'),
+            toNano('50.00'),
+            migrationHelper.address,
+            toNano('3')
+        );
+
+        await oldJettonWallet.sendTransfer(
+            wallets[1].getSender(),
+            toNano('1.00'),
+            toNano('1.00'),
+            migrationHelper.address,
+            toNano('15')
+        );
+
+        const migrationHelperBalanceAfter = await migrationHelper.getBalance();
+        const migrationMasterBalanceAfter = await migrationMaster.getBalance();
+
+        expect(migrationHelperBalanceAfter).toEqual(migrationHelperBalanceBefore);
+        expect(migrationMasterBalanceAfter).toEqual(migrationMasterBalanceBefore);
+    });
 });
