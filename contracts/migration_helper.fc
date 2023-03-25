@@ -3,7 +3,7 @@
 #include "params.fc";
 #include "jetton-utils.fc";
 
-const int ton_for_fee = 100000000;
+const int ton_for_fee = 50000000;
 global slice old_jetton_wallet;
 global slice migration_master;
 global slice recipient;
@@ -38,11 +38,10 @@ global slice recipient;
 }
 
 () recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
-    ~dump(in_msg_body);
-
-    if ((in_msg_body.slice_bits() == 0) | (my_balance < ton_for_fee * 4)) {
+    if ((in_msg_body.slice_bits() == 0)) {
         return (); ;; ignore empty messages / not enough coins
     }
+    throw_if(505, msg_value < ton_for_fee * 4);
 
     load_data();
     slice cs = in_msg_full.begin_parse();
@@ -54,8 +53,6 @@ global slice recipient;
     }
 
     int op = in_msg_body~load_uint(32);
-    
-    ~dump(op);
 
     if (op == op::migrate) {
         if (~ equal_slices(sender, recipient)) {
@@ -63,7 +60,6 @@ global slice recipient;
         }
     }
     elseif (op == op::transfer_notification) {
-        ~dump(equal_slices(sender, old_jetton_wallet));
         if (~ equal_slices(sender, old_jetton_wallet)) {
             return (); ;; ignore messages not from old_jetton_wallet
         }
@@ -74,8 +70,6 @@ global slice recipient;
 
     int query_id = in_msg_body~load_uint(64);
     int amount = in_msg_body~load_coins();
-
-    ~dump(amount);
 
     transfer(amount, query_id);
     send_raw_message(begin_cell()

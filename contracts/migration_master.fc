@@ -3,7 +3,7 @@
 #include "params.fc";
 #include "jetton-utils.fc";
 
-const int ton_for_fee = 100000000;
+const int ton_for_fee = 50000000;
 global slice old_jetton_wallet;
 global slice new_jetton_wallet;
 
@@ -52,10 +52,10 @@ global slice new_jetton_wallet;
 }
 
 () recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
-    ~dump([msg_value, ton_for_fee * 3]);
-    if ((in_msg_body.slice_bits() == 0) | (msg_value < ton_for_fee * 2)) {
+    if ((in_msg_body.slice_bits() == 0)) {
         return (); ;; ignore empty messages / messages with not enough value
     }
+    throw_if(505, msg_value < ton_for_fee * 2);
 
     load_data();
     slice cs = in_msg_full.begin_parse();
@@ -63,7 +63,6 @@ global slice new_jetton_wallet;
     int flags = cs~load_uint(4);
     slice sender = cs~load_msg_addr();
     int op = in_msg_body~load_uint(32);
-    ~dump([22222222, op]);
     if ((flags & 1) | (~ equal_slices(sender, old_jetton_wallet)) | (op != op::transfer_notification)) {
         return (); ;; ignore bounced messages / messages not from old_jetton_wallet / not transfer notifications
     }
@@ -72,14 +71,11 @@ global slice new_jetton_wallet;
     int amount = in_msg_body~load_coins();
     in_msg_body~load_msg_addr();
     slice recipient = "";
-    ~dump(in_msg_body);
     if (in_msg_body~load_uint(1) == 0) {
         recipient = in_msg_body;
     } else {
         recipient = in_msg_body.preload_ref().begin_parse();
     }
-
-    ~dump([amount, recipient]);
 
     transfer(amount, query_id, recipient);
     burn(amount, query_id);
