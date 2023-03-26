@@ -3,14 +3,16 @@ import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, 
 export type MigrationMasterConfig = {
     oldJettonMinter: Address;
     newJettonMinter: Address;
-    walletCode: Cell;
+    oldWalletCode: Cell;
+    newWalletCode: Cell;
 };
 
 export function migrationMasterConfigToCell(config: MigrationMasterConfig): Cell {
     return beginCell()
         .storeAddress(config.oldJettonMinter)
         .storeAddress(config.newJettonMinter)
-        .storeRef(config.walletCode)
+        .storeRef(config.oldWalletCode)
+        .storeRef(config.newWalletCode)
         .endCell();
 }
 

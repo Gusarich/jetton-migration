@@ -9,16 +9,15 @@ const int ton_for_fee = 50000000;
 global slice old_jetton_wallet;
 global slice new_jetton_wallet;
 
-;; We should probably add a getter (will be helpful for the migrator UI)
 () load_data() impure inline {
     slice ds = get_data().begin_parse();
     slice old_jetton_minter = ds~load_msg_addr();
     slice new_jetton_minter = ds~load_msg_addr();
-    cell wallet_code = ds~load_ref();
+    cell old_wallet_code = ds~load_ref();
+    cell new_wallet_code = ds~load_ref();
 
-    ;; Should we really assume that the wallet code is the same for both old and new jetton minter? 
-    old_jetton_wallet = calculate_user_jetton_wallet_address(my_address(), old_jetton_minter, wallet_code);
-    new_jetton_wallet = calculate_user_jetton_wallet_address(my_address(), new_jetton_minter, wallet_code);
+    old_jetton_wallet = calculate_user_jetton_wallet_address(my_address(), old_jetton_minter, old_wallet_code);
+    new_jetton_wallet = calculate_user_jetton_wallet_address(my_address(), new_jetton_minter, new_wallet_code);
 }
 
 () transfer(int amount, int query_id, slice recipient) impure {
@@ -76,15 +75,9 @@ global slice new_jetton_wallet;
     int query_id = in_msg_body~load_uint(64);
     int amount = in_msg_body~load_coins();
     in_msg_body~load_msg_addr();
-    slice recipient = "";
-
-    ;; With the current implementation of migration helper, is there a possiblity that the recipient would be stored in a ref?
-    if (in_msg_body~load_uint(1) == 0) {
-        recipient = in_msg_body;
-    } else {
-        recipient = in_msg_body.preload_ref().begin_parse();
-    }
-
+    in_msg_body~skip_bits(1);
+    slice recipient = in_msg_body;
+    
     transfer(amount, query_id, recipient);
     burn(amount, query_id);
     send_raw_message(begin_cell()
@@ -93,4 +86,9 @@ global slice new_jetton_wallet;
         .store_coins(my_balance - ton_for_fee * 4)
         .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
     .end_cell(), 0);
+}
+
+(slice, slice) get_contract_data() method_id {
+    load_data();
+    return (old_jetton_wallet, new_jetton_wallet);
 }

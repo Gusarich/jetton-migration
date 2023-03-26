@@ -73,7 +73,8 @@ describe('Migration', () => {
         let migrationMasterConfig: MigrationMasterConfig = {
             oldJettonMinter: oldJettonMinter.address,
             newJettonMinter: newJettonMinter.address,
-            walletCode: jettonWalletCode,
+            oldWalletCode: jettonWalletCode,
+            newWalletCode: jettonWalletCode,
         };
         migrationMaster = blockchain.openContract(MigrationMaster.createFromConfig(migrationMasterConfig, masterCode));
         deployResult = await migrationMaster.sendDeploy(wallets[0].getSender(), toNano('0.3'));
