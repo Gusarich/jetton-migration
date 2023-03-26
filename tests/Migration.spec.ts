@@ -137,6 +137,7 @@ describe('Migration', () => {
         );
 
         expect(await newJettonWallet.getJettonBalance()).toEqual(toNano('100'));
+        expect(await oldJettonWallet.getJettonBalance()).toEqual(toNano('0'));
     });
 
     it('should migrate jettons through `migrate`', async () => {
@@ -193,6 +194,7 @@ describe('Migration', () => {
         result = await migrationHelper.sendMigrate(wallets[1].getSender(), toNano('0.3'), toNano('100'));
 
         expect(await newJettonWallet.getJettonBalance()).toEqual(toNano('100'));
+        expect(await oldJettonWallet.getJettonBalance()).toEqual(toNano('0'));
     });
 
     it('should not migrate more than sent', async () => {
@@ -337,6 +339,7 @@ describe('Migration', () => {
         );
 
         expect(await newJettonWallet1.getJettonBalance()).toEqual(toNano('30'));
+        expect(await oldJettonWallet1.getJettonBalance()).toEqual(toNano('0'));
 
         result = await oldJettonWallet2.sendTransfer(
             wallets[2].getSender(),
@@ -347,6 +350,7 @@ describe('Migration', () => {
         );
 
         expect(await newJettonWallet2.getJettonBalance()).toEqual(toNano('50'));
+        expect(await oldJettonWallet2.getJettonBalance()).toEqual(toNano('20'));
 
         result = await oldJettonWallet2.sendTransfer(
             wallets[2].getSender(),
@@ -357,6 +361,7 @@ describe('Migration', () => {
         );
 
         expect(await newJettonWallet2.getJettonBalance()).toEqual(toNano('70'));
+        expect(await oldJettonWallet2.getJettonBalance()).toEqual(toNano('0'));
     });
 
     it('should not gain ton balance', async () => {
