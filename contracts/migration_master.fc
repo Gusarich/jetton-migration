@@ -3,7 +3,7 @@
 #include "params.fc";
 #include "jetton-utils.fc";
 
-;; what does this fee mean - i.e. why was this value chosen?
+;; 0.05 ton
 const int ton_for_fee = 50000000;
 
 global slice old_jetton_wallet;
