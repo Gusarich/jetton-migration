@@ -1,3 +1,4 @@
+import { NetworkProvider } from '@ton-community/blueprint';
 import { Blockchain } from '@ton-community/sandbox';
 import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, Sender, SendMode } from 'ton-core';
 import { JettonMinter } from './JettonMinter';
@@ -11,17 +12,19 @@ export type MigrationHelperConfig = {
 
 export async function migrationHelperConfigToCell(
     config: MigrationHelperConfig,
-    blockchain: Blockchain
+    opener: Blockchain | NetworkProvider
 ): Promise<Cell> {
-    return beginCell()
+    let oldJettonMinter = JettonMinter.createFromAddress(config.oldJettonMinter);
+    let result = beginCell()
         .storeAddress(config.oldJettonMinter)
         .storeAddress(config.migrationMaster)
-        .storeAddress(config.recipient)
-        .storeRef(
-            config.oldWalletCode ||
-                (await blockchain.openContract(JettonMinter.createFromAddress(config.oldJettonMinter)).getWalletCode())
-        )
-        .endCell();
+        .storeAddress(config.recipient);
+    if (opener instanceof Blockchain) {
+        return result
+            .storeRef(config.oldWalletCode || (await opener.openContract(oldJettonMinter).getWalletCode()))
+            .endCell();
+    }
+    return result.storeRef(config.oldWalletCode || (await opener.open(oldJettonMinter).getWalletCode())).endCell();
 }
 
 export class MigrationHelper implements Contract {
@@ -31,8 +34,13 @@ export class MigrationHelper implements Contract {
         return new MigrationHelper(address);
     }
 
-    static async createFromConfig(config: MigrationHelperConfig, code: Cell, blockchain: Blockchain, workchain = 0) {
-        const data = await migrationHelperConfigToCell(config, blockchain);
+    static async createFromConfig(
+        config: MigrationHelperConfig,
+        code: Cell,
+        opener: Blockchain | NetworkProvider,
+        workchain = 0
+    ) {
+        const data = await migrationHelperConfigToCell(config, opener);
         const init = { code, data };
         return new MigrationHelper(contractAddress(workchain, init), init);
     }

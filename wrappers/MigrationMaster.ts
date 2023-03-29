@@ -1,3 +1,4 @@
+import { NetworkProvider } from '@ton-community/blueprint';
 import { Blockchain } from '@ton-community/sandbox';
 import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, Sender, SendMode } from 'ton-core';
 import { JettonMinter } from './JettonMinter';
@@ -11,19 +12,20 @@ export type MigrationMasterConfig = {
 
 export async function migrationMasterConfigToCell(
     config: MigrationMasterConfig,
-    blockchain: Blockchain
+    opener: Blockchain | NetworkProvider
 ): Promise<Cell> {
-    return beginCell()
-        .storeAddress(config.oldJettonMinter)
-        .storeAddress(config.newJettonMinter)
-        .storeRef(
-            config.oldWalletCode ||
-                (await blockchain.openContract(JettonMinter.createFromAddress(config.oldJettonMinter)).getWalletCode())
-        )
-        .storeRef(
-            config.newWalletCode ||
-                (await blockchain.openContract(JettonMinter.createFromAddress(config.newJettonMinter)).getWalletCode())
-        )
+    let oldJettonMinter = JettonMinter.createFromAddress(config.oldJettonMinter);
+    let newJettonMinter = JettonMinter.createFromAddress(config.newJettonMinter);
+    let result = beginCell().storeAddress(config.oldJettonMinter).storeAddress(config.newJettonMinter);
+    if (opener instanceof Blockchain) {
+        return result
+            .storeRef(config.oldWalletCode || (await opener.openContract(oldJettonMinter).getWalletCode()))
+            .storeRef(config.newWalletCode || (await opener.openContract(newJettonMinter).getWalletCode()))
+            .endCell();
+    }
+    return result
+        .storeRef(config.newWalletCode || (await opener.open(newJettonMinter).getWalletCode()))
+        .storeRef(config.newWalletCode || (await opener.open(newJettonMinter).getWalletCode()))
         .endCell();
 }
 
@@ -34,8 +36,13 @@ export class MigrationMaster implements Contract {
         return new MigrationMaster(address);
     }
 
-    static async createFromConfig(config: MigrationMasterConfig, code: Cell, blockchain: Blockchain, workchain = 0) {
-        const data = await migrationMasterConfigToCell(config, blockchain);
+    static async createFromConfig(
+        config: MigrationMasterConfig,
+        code: Cell,
+        opener: Blockchain | NetworkProvider,
+        workchain = 0
+    ) {
+        const data = await migrationMasterConfigToCell(config, opener);
         const init = { code, data };
         return new MigrationMaster(contractAddress(workchain, init), init);
     }
