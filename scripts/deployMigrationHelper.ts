@@ -2,18 +2,21 @@ import { Address, Cell, toNano } from 'ton-core';
 import { MigrationHelper } from '../wrappers/MigrationHelper';
 import { compile, NetworkProvider } from '@ton-community/blueprint';
 
+const networkFee = toNano('0.05');
+
 export async function run(provider: NetworkProvider) {
+    let json = require('./config.json');
     const migrationHelper = provider.open(
         await MigrationHelper.createFromConfig(
             {
-                oldJettonMinter: Address.parse('EQAGPPuLtcu8BimtY8TFVrpJ-E36akEFZHexCSD_BNQl_QrW'),
-                migrationMaster: Address.parse('EQDw4jADMCJcO80n9QduKi_JbTjNoA8HP_ELFqfQML5uaslC'),
-                recipient: Address.parse('EQBIhPuWmjT7fP-VomuTWseE8JNWv2q7QYfsVQ1IZwnMk8wL'),
+                oldJettonMinter: Address.parse(json.oldJettonMinter),
+                migrationMaster: Address.parse(json.migrationMaster),
+                recipient: Address.parse(json.userAddress),
             },
             await compile('MigrationHelper'),
             provider
         )
     );
-    await migrationHelper.sendDeploy(provider.sender(), toNano('0.05'));
+    await migrationHelper.sendDeploy(provider.sender(), networkFee);
     await provider.waitForDeploy(migrationHelper.address);
 }

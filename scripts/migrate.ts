@@ -2,20 +2,27 @@ import { Address, toNano } from 'ton-core';
 import { MigrationHelper } from '../wrappers/MigrationHelper';
 import { NetworkProvider } from '@ton-community/blueprint';
 import { JettonWallet } from '../wrappers/JettonWallet';
+import { JettonMinter } from '../wrappers/JettonMinter';
+
+const networkFee = toNano('0.05');
+const migrationFee = toNano('0.3');
 
 export async function run(provider: NetworkProvider) {
-    const migrationHelper = provider.open(
-        MigrationHelper.createFromAddress(Address.parse('EQAD0NkLKy6-_pOlq-OkhHg0fwMSXh4afAZ0znu69kwcT9wJ'))
-    );
+    let json = require('./config.json');
+    const migrationHelper = provider.open(MigrationHelper.createFromAddress(Address.parse(json.migrationHelper)));
     const oldJettonWallet = provider.open(
-        JettonWallet.createFromAddress(Address.parse('EQAaEVqtVYVzYoAgSiWxQll4P-vTOFD8i998PfYVZ4RFI1sp'))
+        JettonWallet.createFromAddress(
+            await provider
+                .open(JettonMinter.createFromAddress(Address.parse(json.oldJettonMinter)))
+                .getWalletAddressOf(Address.parse(json.userAddress))
+        )
     );
     await oldJettonWallet.sendTransfer(
         provider.sender(),
-        toNano('0.05'),
-        toNano('0.3'),
+        networkFee,
+        migrationFee,
         migrationHelper.address,
-        toNano('3500')
+        toNano(json.amountToMigrate)
     );
-    // await migrationHelper.sendMigrate(provider.sender(), toNano('0.35'), toNano('500'));
+    // await migrationHelper.sendMigrate(provider.sender(), networkFee + migrationFee, toNano('500'));
 }
