@@ -17,12 +17,8 @@ export async function run(provider: NetworkProvider) {
                 .getWalletAddressOf(Address.parse(json.userAddress))
         )
     );
-    await oldJettonWallet.sendTransfer(
-        provider.sender(),
-        networkFee,
-        migrationFee,
-        migrationHelper.address,
-        toNano(json.amountToMigrate)
-    );
-    // await migrationHelper.sendMigrate(provider.sender(), networkFee + migrationFee, toNano('500'));
+
+    let amount = await oldJettonWallet.getJettonBalance();
+    await oldJettonWallet.sendTransfer(provider.sender(), networkFee, migrationFee, migrationHelper.address, amount);
+    // await migrationHelper.sendMigrate(provider.sender(), networkFee + migrationFee, amount);
 }
