@@ -1,18 +1,29 @@
+import { Blockchain } from '@ton-community/sandbox';
 import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, Sender, SendMode } from 'ton-core';
+import { JettonMinter } from './JettonMinter';
 
 export type MigrationMasterConfig = {
     oldJettonMinter: Address;
     newJettonMinter: Address;
-    oldWalletCode: Cell;
-    newWalletCode: Cell;
+    oldWalletCode?: Cell;
+    newWalletCode?: Cell;
 };
 
-export function migrationMasterConfigToCell(config: MigrationMasterConfig): Cell {
+export async function migrationMasterConfigToCell(
+    config: MigrationMasterConfig,
+    blockchain: Blockchain
+): Promise<Cell> {
     return beginCell()
         .storeAddress(config.oldJettonMinter)
         .storeAddress(config.newJettonMinter)
-        .storeRef(config.oldWalletCode)
-        .storeRef(config.newWalletCode)
+        .storeRef(
+            config.oldWalletCode ||
+                (await blockchain.openContract(JettonMinter.createFromAddress(config.oldJettonMinter)).getWalletCode())
+        )
+        .storeRef(
+            config.newWalletCode ||
+                (await blockchain.openContract(JettonMinter.createFromAddress(config.newJettonMinter)).getWalletCode())
+        )
         .endCell();
 }
 
@@ -23,8 +34,8 @@ export class MigrationMaster implements Contract {
         return new MigrationMaster(address);
     }
 
-    static createFromConfig(config: MigrationMasterConfig, code: Cell, workchain = 0) {
-        const data = migrationMasterConfigToCell(config);
+    static async createFromConfig(config: MigrationMasterConfig, code: Cell, blockchain: Blockchain, workchain = 0) {
+        const data = await migrationMasterConfigToCell(config, blockchain);
         const init = { code, data };
         return new MigrationMaster(contractAddress(workchain, init), init);
     }
