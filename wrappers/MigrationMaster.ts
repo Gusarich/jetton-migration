@@ -24,7 +24,7 @@ export async function migrationMasterConfigToCell(
             .endCell();
     }
     return result
-        .storeRef(config.newWalletCode || (await opener.open(newJettonMinter).getWalletCode()))
+        .storeRef(config.oldWalletCode || (await opener.open(oldJettonMinter).getWalletCode()))
         .storeRef(config.newWalletCode || (await opener.open(newJettonMinter).getWalletCode()))
         .endCell();
 }
